@@ -19,4 +19,17 @@ const getBookById = async (req, res) => {
   }
   res.status(200).json(book)
 }
-module.exports = { createBook, getAllBooks, getBookById }
+
+const updateBook = async (req, res) => {
+  const { id } = req.params
+  const updateData = req.body
+  const book = await Book.findByPk(id)
+  const [updatedRows] = await Book.update(updateData, { where: { id } })
+
+  if (!book) {
+    res.status(404).json({ error: "The book does not exist." })
+  }
+  res.status(200).json(updatedRows)
+}
+
+module.exports = { createBook, getAllBooks, getBookById, updateBook }

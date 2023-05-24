@@ -97,5 +97,29 @@ describe("/books", () => {
         expect(response.body.error).to.equal("The book does not exist.")
       })
     })
+
+    describe("PATCH /books/:id", () => {
+      it("updates books records by id", async () => {
+        const book = books[0]
+        const response = await request(app)
+          .patch(`/books/${book.id}`)
+          .send({ title: "My Life" })
+        const updatedBookRecord = await Book.findByPk(book.id, {
+          raw: true,
+        })
+
+        expect(response.status).to.equal(200)
+        expect(updatedBookRecord.title).to.equal("My Life")
+      })
+
+      it("returns a 404 if the book does not exist", async () => {
+        const response = await request(app)
+          .patch("/books/12345")
+          .send({ title: "some new title" })
+
+        expect(response.status).to.equal(404)
+        expect(response.body.error).to.equal("The book does not exist.")
+      })
+    })
   })
 })
