@@ -10,4 +10,13 @@ const getAllBooks = async (_, res) => {
   res.status(200).json(books)
 }
 
-module.exports = { createBook, getAllBooks }
+const getBookById = async (req, res) => {
+  const { id } = req.params
+  const book = await Book.findByPk(id)
+
+  if (!book) {
+    res.status(404).json({ error: "The book does not exist." })
+  }
+  res.status(200).json(book)
+}
+module.exports = { createBook, getAllBooks, getBookById }
