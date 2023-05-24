@@ -34,4 +34,48 @@ describe("/books", () => {
       })
     })
   })
+
+  describe("with records in the database", () => {
+    let books
+    beforeEach(async () => {
+      books = await Promise.all([
+        Book.create({
+          title: "My Life",
+          author: "David Ding",
+          genre: "Biography",
+          ISBN: "100-888-888",
+        }),
+        Book.create({
+          title: "His Life",
+          author: "Jensen Huang",
+          genre: "Biography",
+          ISBN: "100-868-888",
+        }),
+        Book.create({
+          title: "Her Life as a SWE",
+          author: "Sarah Lee",
+          genre: "Biography",
+          ISBN: "100-886-888",
+        }),
+      ])
+    })
+
+    describe("GET /books", () => {
+      it("gets all books records", async () => {
+        const response = await request(app).get("/books")
+
+        expect(response.status).to.equal(200)
+        expect(response.body.length).to.equal(3)
+
+        response.body.forEach((book) => {
+          const expected = books.find((a) => a.id === book.id)
+
+          expect(book.title).to.equal(expected.title)
+          expect(book.author).to.equal(expected.author)
+          expect(book.genre).to.equal(expected.genre)
+          expect(book.ISBN).to.equal(expected.ISBN)
+        })
+      })
+    })
+  })
 })
