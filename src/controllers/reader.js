@@ -34,14 +34,18 @@ const updateReader = async (req, res) => {
 }
 
 const deleteReader = async (req, res) => {
-  const { id } = req.params
-  const [reader] = await Reader.destroy(req.body, {
-    where: { id },
-  })
-  if (!reader) {
-    res.status(404).json({ error: "The reader could not be found." })
+  try {
+    const { id } = req.params
+    const reader = await Reader.findByPk(id)
+    const deletedRows = await Reader.destroy({ where: { id } })
+
+    if (!reader) {
+      res.status(404).json({ error: "The reader could not be found." })
+    }
+    res.status(204).json(deletedRows)
+  } catch (err) {
+    res.status(500).json(err.message)
   }
-  res.status(204).json(reader)
 }
 module.exports = {
   createReader,
