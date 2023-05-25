@@ -1,30 +1,11 @@
-const { Book, Reader } = require("../models")
+const { Book } = require("../models")
+const { createEntry, getAllEntry, getEntryById } = require("./helpers")
 
-const createBook = async (req, res) => {
-  try {
-    const newBook = await Book.create(req.body)
-    res.status(201).json(newBook)
-  } catch (err) {
-    console.log(err)
-    const errorMessage = err.errors.map((e) => e.message)
-    res.status(400).json({ error: errorMessage[0] })
-  }
-}
+const createBook = (req, res) => createEntry(res, "book", req.body)
 
-const getAllBooks = async (_, res) => {
-  const books = await Book.findAll()
-  res.status(200).json(books)
-}
+const getAllBooks = (_, res) => getAllEntry(res, "book", _)
 
-const getBookById = async (req, res) => {
-  const { id } = req.params
-  const book = await Book.findByPk(id)
-
-  if (!book) {
-    res.status(404).json({ error: "The book does not exist." })
-  }
-  res.status(200).json(book)
-}
+const getBookById = async (req, res) => getEntryById(res, "book", req.params.id)
 
 const updateBook = async (req, res) => {
   const { id } = req.params
