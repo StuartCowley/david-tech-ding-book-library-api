@@ -8,18 +8,21 @@ describe("/readers", () => {
     await Reader.sequelize.sync({ force: true })
   })
 
-  beforeEach(async () => {
-    await Reader.destroy({ where: {} })
-  })
-
   describe("with no records in the database", () => {
     describe("POST /readers", () => {
-      it("creates a new reader in the database", async () => {
-        const response = await request(app).post("/readers").send({
+      let testReader
+
+      beforeEach(async () => {
+        await Reader.destroy({ where: {} })
+        testReader = {
           name: "David Ding",
           email: "dingtechxing1@gmail.com",
-          password: "pass123",
-        })
+          password: "pass1234",
+        }
+      })
+
+      it("creates a new reader in the database", async () => {
+        const response = await request(app).post("/readers").send(testReader)
         const newReaderRecord = await Reader.findByPk(response.body.id, {
           raw: true,
         })
@@ -28,7 +31,65 @@ describe("/readers", () => {
         expect(response.body.name).to.equal("David Ding")
         expect(newReaderRecord.name).to.equal("David Ding")
         expect(newReaderRecord.email).to.equal("dingtechxing1@gmail.com")
-        expect(newReaderRecord.password).to.equal("pass123")
+        expect(newReaderRecord.password).to.equal("pass1234")
+      })
+
+      it("returns an error when a name is not provided", async () => {
+        testReader.name = null
+        const response = await request(app).post("/readers").send(testReader)
+
+        expect(response.status).to.equal(400)
+        expect(response.body.error).to.equal("Name is required")
+      })
+
+      it("returns an error when a name is empty", async () => {
+        testReader.name = " "
+        const response = await request(app).post("/readers").send(testReader)
+
+        expect(response.status).to.equal(400)
+        expect(response.body.error).to.equal("Name cannot be empty")
+      })
+
+      it("returns an error when an email is not provided", async () => {
+        testReader.email = null
+        const response = await request(app).post("/readers").send(testReader)
+
+        expect(response.status).to.equal(400)
+        expect(response.body.error).to.equal("Email is required")
+      })
+
+      it("returns an error when an email is empty", async () => {
+        testReader.email = " "
+        const response = await request(app).post("/readers").send(testReader)
+
+        expect(response.status).to.equal(400)
+        expect(response.body.error).to.equal("Email cannot be empty")
+      })
+
+      it("returns an error when a password is not provided", async () => {
+        testReader.password = null
+        const response = await request(app).post("/readers").send(testReader)
+
+        expect(response.status).to.equal(400)
+        expect(response.body.error).to.equal("Password is required")
+      })
+
+      it("returns an error when a password is empty", async () => {
+        testReader.password = " "
+        const response = await request(app).post("/readers").send(testReader)
+
+        expect(response.status).to.equal(400)
+        expect(response.body.error).to.equal("Password cannot be empty")
+      })
+
+      it("returns an error if a password length is less than 8 characters", async () => {
+        testReader.password = "pass123"
+        const response = await request(app).post("/readers").send(testReader)
+
+        expect(response.status).to.equal(400)
+        expect(response.body.error).to.equal(
+          "Password has to be at least 8 characters"
+        )
       })
     })
   })
@@ -41,17 +102,17 @@ describe("/readers", () => {
         Reader.create({
           name: "Elizabeth Bennet",
           email: "future_ms_darcy@gmail.com",
-          password: "pass123",
+          password: "pass1234",
         }),
         Reader.create({
           name: "Arya Stark",
           email: "vmorgul@me.com",
-          password: "pass1234",
+          password: "pass12345",
         }),
         Reader.create({
           name: "Lyra Belacqua",
           email: "darknorth123@msn.org",
-          password: "pass12345",
+          password: "pass123456",
         }),
       ])
     })
