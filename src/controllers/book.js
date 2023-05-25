@@ -3,6 +3,7 @@ const {
   createEntry,
   getAllEntry,
   getEntryById,
+  updateEntryById,
   deleteEntryById,
 } = require("./helpers")
 
@@ -10,19 +11,12 @@ const createBook = (req, res) => createEntry(res, "book", req.body)
 
 const getAllBooks = (_, res) => getAllEntry(res, "book", _)
 
-const getBookById = async (req, res) => getEntryById(res, "book", req.params.id)
+const getBookById = (req, res) => getEntryById(res, "book", req.params.id)
 
-const updateBook = async (req, res) => {
-  const { id } = req.params
-  const [book] = await Book.update(req.body, { where: { id } })
+const updateBook = (req, res) =>
+  updateEntryById(res, "book", req.body, req.params.id)
 
-  if (!book) {
-    res.status(404).json({ error: "The book does not exist." })
-  }
-  res.status(200).json(book)
-}
-const deleteBook = async (req, res) =>
-  deleteEntryById(res, "book", req.params.id)
+const deleteBook = (req, res) => deleteEntryById(res, "book", req.params.id)
 
 module.exports = {
   createBook,

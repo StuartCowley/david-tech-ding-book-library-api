@@ -1,10 +1,11 @@
 const { Model } = require("sequelize")
-const { Reader, Book } = require("../models")
+const { Reader, Book, Author } = require("../models")
 
 const getModel = (model) => {
   const models = {
     reader: Reader,
     book: Book,
+    author: Author,
   }
 
   return models[model]
