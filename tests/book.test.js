@@ -8,19 +8,21 @@ describe("/books", () => {
     await Book.sequelize.sync({ force: true })
   })
 
-  beforeEach(async () => {
-    await Book.destroy({ where: {} })
-  })
-
   describe("with no records in the database", () => {
     describe("POST /books", () => {
-      it("creates a new book in the database", async () => {
-        const response = await request(app).post("/books").send({
+      let testBook
+
+      beforeEach(async () => {
+        await Book.destroy({ where: {} })
+        testBook = {
           title: "My Life",
           author: "David Ding",
           genre: "Biography",
           ISBN: "100-888-888",
-        })
+        }
+      })
+      it("creates a new book in the database", async () => {
+        const response = await request(app).post("/books").send(testBook)
         const newBookRecord = await Book.findByPk(response.body.id, {
           raw: true,
         })
@@ -31,6 +33,38 @@ describe("/books", () => {
         expect(newBookRecord.author).to.equal("David Ding")
         expect(newBookRecord.genre).to.equal("Biography")
         expect(newBookRecord.ISBN).to.equal("100-888-888")
+      })
+
+      it("returns an error when a title is not provided", async () => {
+        testBook.title = null
+        const response = await request(app).post("/books").send(testBook)
+
+        expect(response.status).to.equal(400)
+        expect(response.body.error).to.equal("Title is required")
+      })
+
+      it("returns an error when a title is empty", async () => {
+        testBook.title = " "
+        const response = await request(app).post("/books").send(testBook)
+
+        expect(response.status).to.equal(400)
+        expect(response.body.error).to.equal("Title cannot be empty")
+      })
+
+      it("returns an error when an author is not provided", async () => {
+        testBook.author = null
+        const response = await request(app).post("/books").send(testBook)
+
+        expect(response.status).to.equal(400)
+        expect(response.body.error).to.equal("Author is required")
+      })
+
+      it("returns an error when an author is empty", async () => {
+        testBook.author = " "
+        const response = await request(app).post("/books").send(testBook)
+
+        expect(response.status).to.equal(400)
+        expect(response.body.error).to.equal("Author cannot be empty")
       })
     })
   })
