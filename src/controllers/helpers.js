@@ -57,10 +57,25 @@ const updateEntryById = async (res, model, entry, id) => {
   }
 }
 
+const deleteEntryById = async (res, model, id) => {
+  const Model = getModel(model)
+  try {
+    const deletedRows = await Model.destroy({ where: { id } })
+
+    if (!deletedRows) {
+      res.status(404).json({ error: `The ${model} does not exist.` })
+    }
+    res.status(204).json(deletedRows)
+  } catch (err) {
+    res.status(500).json(err.message)
+  }
+}
+
 module.exports = {
   getModel,
   createEntry,
   getAllEntry,
   getEntryById,
   updateEntryById,
+  deleteEntryById,
 }
