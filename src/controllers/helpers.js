@@ -10,12 +10,19 @@ const getModel = (model) => {
   return models[model]
 }
 
+const removePassword = (obj) => {
+  if (obj.hasOwnProperty("password")) {
+    delete obj.password
+  }
+  return obj
+}
 const createEntry = async (res, model, entry) => {
   const Model = getModel(model)
 
   try {
     const newEntry = await Model.create(entry)
-    res.status(201).json(newEntry)
+    const entryWithoutPassword = removePassword(newEntry.get())
+    res.status(201).json(entryWithoutPassword)
   } catch (err) {
     const errorMessage = err.errors.map((e) => e.message)
     res.status(400).json({ error: errorMessage[0] })
@@ -26,19 +33,23 @@ const getAllEntry = async (res, model) => {
   const Model = getModel(model)
   try {
     const newEntry = await Model.findAll()
-    res.status(200).json(newEntry)
+    const entryWithoutPassword = newEntry.map((entry) => {
+      return removePassword(entry.get())
+    })
+    res.status(200).json(entryWithoutPassword)
   } catch (err) {
     res.status(500).json(err.message)
   }
 }
 const getEntryById = async (res, model, id) => {
   const Model = getModel(model)
+  const newEntry = await Model.findByPk(id)
   try {
-    const newEntry = await Model.findByPk(id)
     if (!newEntry) {
       res.status(404).json({ error: `The ${model} does not exist.` })
     }
-    res.status(200).json(newEntry)
+    const entryWithoutPassword = removePassword(newEntry.get())
+    res.status(200).json(entryWithoutPassword)
   } catch (err) {
     res.status(500).json(err.message)
   }
@@ -46,12 +57,15 @@ const getEntryById = async (res, model, id) => {
 
 const updateEntryById = async (res, model, entry, id) => {
   const Model = getModel(model)
+  const [entryUpdated] = await Model.update(entry, { where: { id } })
+
   try {
-    const [newEntry] = await Model.update(entry, { where: { id } })
-    if (!newEntry) {
+    if (!entryUpdated) {
       res.status(404).json({ error: `The ${model} does not exist.` })
     }
-    res.status(200).json(newEntry)
+    const updatedEntry = await Model.findByPk(id)
+    const entryWithoutPassword = removePassword(updatedEntry.get())
+    res.status(200).json(entryWithoutPassword)
   } catch (err) {
     res.status(500).json(err.message)
   }
@@ -78,4 +92,5 @@ module.exports = {
   getEntryById,
   updateEntryById,
   deleteEntryById,
+  removePassword,
 }
