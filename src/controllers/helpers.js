@@ -1,6 +1,5 @@
-const { Model } = require("sequelize")
 const { Reader, Book, Author, Genre } = require("../models")
-
+const error404 = (model) => ({ error: `The ${model} does not exist.` })
 const getModel = (model) => {
   const models = {
     reader: Reader,
@@ -48,7 +47,7 @@ const getEntryById = async (res, model, id) => {
   const newEntry = await Model.findByPk(id)
   try {
     if (!newEntry) {
-      res.status(404).json({ error: `The ${model} does not exist.` })
+      res.status(404).json(error404(model))
     }
     const entryWithoutPassword = removePassword(newEntry.get())
     res.status(200).json(entryWithoutPassword)
@@ -63,7 +62,7 @@ const updateEntryById = async (res, model, entry, id) => {
 
   try {
     if (!entryUpdated) {
-      res.status(404).json({ error: `The ${model} does not exist.` })
+      res.status(404).json(error404(model))
     }
     const updatedEntry = await Model.findByPk(id)
     const entryWithoutPassword = removePassword(updatedEntry.get())
@@ -79,7 +78,7 @@ const deleteEntryById = async (res, model, id) => {
     const deletedRows = await Model.destroy({ where: { id } })
 
     if (!deletedRows) {
-      res.status(404).json({ error: `The ${model} does not exist.` })
+      res.status(404).json(error404(model))
     }
     res.status(204).json(deletedRows)
   } catch (err) {
