@@ -19,12 +19,40 @@ const setUpDatabase = () => {
   const Author = AuthorModel(connection, Sequelize)
   const Genre = GenreModel(connection, Sequelize)
 
-  Reader.hasMany(Book)
-  Genre.hasMany(Book)
+  Reader.hasMany(Book, {
+    foreignKey: {
+      allowNull: true,
+      validate: {
+        notEmpty: true,
+      },
+    },
+  })
+  Genre.hasMany(Book, {
+    foreignKey: {
+      allowNull: true,
+      validate: {
+        notEmpty: true,
+      },
+    },
+  })
   Book.belongsTo(Genre)
   Book.belongsTo(Author)
-  Book.belongsTo(Reader)
-  Author.hasMany(Book)
+  Book.belongsTo(Reader, {
+    foreignKey: {
+      allowNull: true,
+      validate: {
+        notEmpty: true,
+      },
+    },
+  })
+  Author.hasMany(Book, {
+    foreignKey: {
+      allowNull: true,
+      validate: {
+        notEmpty: true,
+      },
+    },
+  })
 
   connection.sync({ alter: true })
   return {
