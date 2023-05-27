@@ -13,15 +13,16 @@ const getAllReaders = (_, res) => getAllEntry(res, "reader", _)
 
 const getReaderById = (req, res) => getEntryById(res, "reader", req.params.id)
 
-const updateReader = (req, res) =>
+const updateReaderById = (req, res) =>
   updateEntryById(res, "reader", req.body, req.params.id)
 
-const deleteReader = (req, res) => deleteEntryById(res, "reader", req.params.id)
+const deleteReaderById = (req, res) =>
+  deleteEntryById(res, "reader", req.params.id)
 
 module.exports = {
   createReader,
   getAllReaders,
   getReaderById,
-  updateReader,
-  deleteReader,
+  updateReaderById,
+  deleteReaderById,
 }

@@ -11,6 +11,11 @@ const getModel = (model) => {
   return models[model]
 }
 
+const getOptions = (model) => {
+  if (model === "book") return { include: Genre }
+  if (model === "genre") return { include: Book }
+}
+
 const removePassword = (obj) => {
   if (obj.hasOwnProperty("password")) {
     delete obj.password
@@ -31,20 +36,31 @@ const createEntry = async (res, model, entry) => {
 }
 
 const getAllEntry = async (res, model) => {
-  const Model = getModel(model)
   try {
-    const newEntry = await Model.findAll()
-    const entryWithoutPassword = newEntry.map((entry) => {
-      return removePassword(entry.get())
-    })
+    const Model = getModel(model)
+    const newEntry = await Model.findAll(getOptions(model))
+
+    if (model === "book") {
+      newEntry.forEach((entry) => {
+        if (entry.Reader) {
+          removePassword(entry.Reader.get())
+        }
+      })
+    }
+
+    const entryWithoutPassword = newEntry.map((entry) =>
+      removePassword(entry.get())
+    )
+
     res.status(200).json(entryWithoutPassword)
   } catch (err) {
     res.status(500).json(err.message)
   }
 }
+
 const getEntryById = async (res, model, id) => {
   const Model = getModel(model)
-  const newEntry = await Model.findByPk(id)
+  const newEntry = await Model.findByPk(id, getOptions(model))
   try {
     if (!newEntry) {
       res.status(404).json(error404(model))
