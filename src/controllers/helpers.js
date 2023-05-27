@@ -12,8 +12,9 @@ const getModel = (model) => {
 }
 
 const getOptions = (model) => {
-  if (model === "book") return { include: Genre }
-  if (model === "genre") return { include: Book }
+  if (model === "book") return { include: [Genre, Author, Reader] }
+  if (model === "genre" || model === "author" || model === "genre")
+    return { include: Book }
 }
 
 const removePassword = (obj) => {
